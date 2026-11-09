@@ -1,10 +1,12 @@
 """Small reproducible CPU baseline: OCR detections plus row/amount rules."""
 
 import json
+import math
 import re
 from statistics import median
 
 from .schema import normalize_name, number
+from .verification import TextRegion
 
 TOTAL = re.compile(r"^\s*(?:(?:grand|net|nett)\s*)?total(?:\b|(?=\d))", re.I)
 SUBTOTAL = re.compile(r"^\s*sub[\s-]*total(?:\b|(?=\d))", re.I)
@@ -13,14 +15,36 @@ OTHER = re.compile(r"\b(?:cash|change|paid|tunai|kembali|ppn|service|discount|di
 AMOUNT = re.compile(r"(?:IDR|Rp\.?)?\s*[+-]?\d+(?:[.,]\d+)*", re.I)
 
 
-def grouped_lines(detections):
-    words = []
-    for box, text, _ in detections:
-        ys = [float(y) for _, y in box]
-        words.append((sum(ys) / len(ys), min(float(x) for x, _ in box),
-                      max(ys) - min(ys), text))
-    if not words:
+def grouped_regions(detections, width, height, *, deskew=False):
+    if not detections:
         return []
+    detections = [([[float(x), float(y)] for x, y in box], text)
+                  for box, text, _ in detections]
+    angle = 0.0
+    if deskew:
+        slopes = []
+        for box, _ in detections:
+            dx, dy = box[1][0] - box[0][0], box[1][1] - box[0][1]
+            slope = math.atan2(dy, dx)
+            if dx >= 10 and abs(slope) <= math.radians(20):
+                slopes.append(slope)
+        if len(slopes) >= 3:
+            candidate = median(slopes)
+            if abs(candidate) >= math.radians(1):
+                angle = candidate
+
+    cosine, sine = math.cos(angle), math.sin(angle)
+    words = []
+    for box, text in detections:
+        xs, ys = zip(*box, strict=True)
+        bounds = (min(xs), min(ys), max(xs), max(ys))
+        cx, cy = sum(xs) / len(xs), sum(ys) / len(ys)
+        if angle:
+            row, column = cy * cosine - cx * sine, cx * cosine + cy * sine
+            height_hint = math.dist(box[0], box[-1])
+        else:
+            row, column, height_hint = cy, bounds[0], bounds[3] - bounds[1]
+        words.append((row, column, height_hint, text, bounds))
     tolerance = max(3.0, median(word[2] for word in words) * 0.56)
     lines = []
     for word in sorted(words):
@@ -28,7 +52,16 @@ def grouped_lines(detections):
             lines[-1].append(word)
         else:
             lines.append([word])
-    return [" ".join(w[3] for w in sorted(line, key=lambda w: w[1])) for line in lines]
+    regions = []
+    for line in lines:
+        boxes = [word[4] for word in line]
+        x1, y1 = min(b[0] for b in boxes), min(b[1] for b in boxes)
+        x2, y2 = max(b[2] for b in boxes), max(b[3] for b in boxes)
+        coords = tuple(round(max(0, min(1, x)), 5)
+                       for x in (x1 / width, y1 / height, x2 / width, y2 / height))
+        text = " ".join(word[3] for word in sorted(line, key=lambda w: w[1]))
+        regions.append(TextRegion(text, coords))
+    return regions
 
 
 def extract_lines(lines):
@@ -75,10 +108,17 @@ class OCR:
         self.np = np
         self.engine = RapidOCR(intra_op_num_threads=2, inter_op_num_threads=2)
 
+    def detect(self, image):
+        bgr = self.np.asarray(image.convert("RGB"))[:, :, ::-1].copy()
+        detections, _ = self.engine(bgr, use_cls=False)
+        return detections or []
+
+    def regions(self, image, *, deskew=False):
+        return grouped_regions(self.detect(image), image.width, image.height, deskew=deskew)
+
     def predict(self, images, max_new_tokens=None):
         results = []
         for image in images:
-            bgr = self.np.asarray(image.convert("RGB"))[:, :, ::-1].copy()
-            detections, _ = self.engine(bgr, use_cls=False)
-            results.append(json.dumps(extract_lines(grouped_lines(detections or [])), ensure_ascii=False))
+            receipt = extract_lines([region.text for region in self.regions(image)])
+            results.append(json.dumps(receipt, ensure_ascii=False))
         return results

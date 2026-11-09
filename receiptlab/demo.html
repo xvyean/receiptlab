@@ -16,7 +16,12 @@ p{margin:6px 0;color:var(--muted)}
 .workspace{display:grid;align-items:start;grid-template-columns:minmax(250px,.75fr) minmax(410px,1.25fr);gap:16px;margin-top:16px}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
 .preview{min-height:320px;display:grid;place-items:center;background:#f3f7f5;border-radius:10px}
-img{max-width:100%;max-height:590px;object-fit:contain;border-radius:4px}
+#photo{position:relative;max-width:100%;line-height:0}
+img{display:block;max-width:100%;max-height:590px;object-fit:contain;border-radius:4px}
+#evidence-box{position:absolute;border:2px solid #17804f;background:#22ae6529;border-radius:4px;pointer-events:none}
+#verification{border-left:3px solid #b47116;background:#fff6e6;padding:9px 11px;margin:0 0 12px;color:#75490f}
+#verification[data-state=verified]{border-color:#17804f;background:#e9f7ef;color:#17543b}
+#verification small{display:block;margin-top:2px;color:inherit}
 button,.upload{border:1px solid var(--accent);border-radius:8px;background:var(--accent);color:#fff;padding:9px 13px;font:inherit;cursor:pointer}
 .secondary{background:white;color:var(--accent)}
 button:disabled{cursor:default;opacity:.47}
@@ -49,7 +54,7 @@ td input,.totals input{width:100%;border:1px solid var(--line);border-radius:5px
   <div class="workspace">
     <section class="card">
       <h2>原始图片</h2>
-      <div class="preview"><p id="empty">在此预览票据</p><img id="preview" alt="待核对的票据原图" hidden></div>
+      <div class="preview"><p id="empty">在此预览票据</p><div id="photo" hidden><img id="preview" alt="待核对的票据原图"><div id="evidence-box" hidden></div></div></div>
     </section>
     <section class="card">
       <h2>识别结果</h2>
@@ -63,6 +68,7 @@ td input,.totals input{width:100%;border:1px solid var(--line);border-radius:5px
           <label>小计<input id="subtotal" inputmode="decimal"></label>
           <label>应付总额<input id="total" inputmode="decimal"></label>
         </div>
+        <div id="verification" role="status" hidden><strong id="verification-title"></strong><small id="verification-note"></small></div>
         <div class="toolbar">
           <button id="add" class="secondary">添加一行</button>
           <button id="review" class="secondary">核验金额</button>
@@ -92,7 +98,8 @@ function loadImage(blob) {
   selected = blob;
   previewUrl = URL.createObjectURL(blob);
   el("preview").src = previewUrl;
-  el("preview").hidden = false;
+  el("photo").hidden = false;
+  showVerification(null);
   el("empty").hidden = true;
   el("hint").hidden = false;
   el("result").hidden = true;
@@ -133,6 +140,36 @@ function showIssues(issues) {
   }
   if (!issues.length) el("status").textContent = "已有字段未发现算术差异";
 }
+function showVerification(result) {
+  const box = el("evidence-box");
+  const status = el("verification");
+  box.hidden = true;
+  status.hidden = !result;
+  if (!result) return;
+  status.dataset.state = result.status;
+  const explanations = {
+    model_total_missing: "视觉模型没有读出应付总额。",
+    payable_label_missing: "OCR 没有找到单独标注的应付总额。",
+    payable_amount_ambiguous: "OCR 找到多个不同的应付金额。",
+    payable_amount_differs: "视觉模型与 OCR 的应付金额不一致。",
+    payable_amount_matches: "两种方法读到相同的应付金额。此核验仅覆盖总额。",
+    manually_edited: "已修改总额，请对照原图复核。"
+  };
+  el("verification-title").textContent = result.status === "verified" ? "总额交叉一致" : "总额待复核";
+  el("verification-note").textContent = explanations[result.reason]
+    + (result.evidence ? " OCR 证据：" + result.evidence.text : "");
+  if (result.evidence) {
+    const [x1, y1, x2, y2] = result.evidence.bbox;
+    Object.assign(box.style, {
+      left: x1 * 100 + "%", top: y1 * 100 + "%",
+      width: (x2 - x1) * 100 + "%", height: (y2 - y1) * 100 + "%"
+    });
+    box.hidden = false;
+  }
+}
+el("total").addEventListener("input", () => {
+  if (!el("verification").hidden) showVerification({status:"review", reason:"manually_edited"});
+});
 async function perform(task) {
   if (busy) return;
   busy = true;
@@ -160,6 +197,7 @@ el("run").onclick = () => perform(async () => {
   el("result").hidden = false;
   el("status").textContent = "识别完成";
   showIssues(data.review);
+  showVerification(data.total_verification);
 });
 el("add").onclick = () => addRow();
 el("review").onclick = () => perform(async () => {

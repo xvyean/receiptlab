@@ -1,0 +1,364 @@
+{
+  "cord": {
+    "dataset": "naver-clova-ix/cord-v2",
+    "revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+    "split": "test",
+    "variants": {
+      "clean": {
+        "receipts": 100,
+        "eligible": 95,
+        "full_accuracy": 0.8421052631578947,
+        "wrong_totals": 15,
+        "exact_scale_errors": {},
+        "ocr_seconds_mean": 0.6186236877180636,
+        "review_reasons": {
+          "payable_label_missing": 37,
+          "payable_amount_matches": 49,
+          "model_total_missing": 9,
+          "payable_amount_differs": 4,
+          "payable_amount_ambiguous": 1
+        },
+        "policies": {
+          "model_has_total": {
+            "accepted": 86,
+            "correct": 80,
+            "errors": 6,
+            "coverage": 0.9052631578947369,
+            "precision": 0.9302325581395349,
+            "precision_ci95_wilson": [
+              0.8560385935896314,
+              0.9676345854900786
+            ],
+            "wrong_routed_to_review": 9
+          },
+          "amount_anywhere": {
+            "accepted": 80,
+            "correct": 76,
+            "errors": 4,
+            "coverage": 0.8421052631578947,
+            "precision": 0.95,
+            "precision_ci95_wilson": [
+              0.8783772379535698,
+              0.9803864454644556
+            ],
+            "wrong_routed_to_review": 11
+          },
+          "labeled_total_agreement": {
+            "accepted": 45,
+            "correct": 45,
+            "errors": 0,
+            "coverage": 0.47368421052631576,
+            "precision": 1.0,
+            "precision_ci95_wilson": [
+              0.9213484012671117,
+              1.0
+            ],
+            "wrong_routed_to_review": 15
+          },
+          "deskewed_total_agreement": {
+            "accepted": 48,
+            "correct": 48,
+            "errors": 0,
+            "coverage": 0.5052631578947369,
+            "precision": 1.0,
+            "precision_ci95_wilson": [
+              0.9258998703338824,
+              0.9999999999999999
+            ],
+            "wrong_routed_to_review": 15
+          }
+        }
+      },
+      "blur": {
+        "receipts": 20,
+        "eligible": 19,
+        "full_accuracy": 0.8947368421052632,
+        "wrong_totals": 2,
+        "exact_scale_errors": {},
+        "ocr_seconds_mean": 0.44249244323000314,
+        "review_reasons": {
+          "payable_label_missing": 9,
+          "payable_amount_matches": 10,
+          "model_total_missing": 1
+        },
+        "policies": {
+          "model_has_total": {
+            "accepted": 18,
+            "correct": 17,
+            "errors": 1,
+            "coverage": 0.9473684210526315,
+            "precision": 0.9444444444444444,
+            "precision_ci95_wilson": [
+              0.7424269921812741,
+              0.990124809021697
+            ],
+            "wrong_routed_to_review": 1
+          },
+          "amount_anywhere": {
+            "accepted": 12,
+            "correct": 12,
+            "errors": 0,
+            "coverage": 0.631578947368421,
+            "precision": 1.0,
+            "precision_ci95_wilson": [
+              0.7575059933447592,
+              1.0
+            ],
+            "wrong_routed_to_review": 2
+          },
+          "labeled_total_agreement": {
+            "accepted": 10,
+            "correct": 10,
+            "errors": 0,
+            "coverage": 0.5263157894736842,
+            "precision": 1.0,
+            "precision_ci95_wilson": [
+              0.7224672001371107,
+              0.9999999999999999
+            ],
+            "wrong_routed_to_review": 2
+          },
+          "deskewed_total_agreement": {
+            "accepted": 10,
+            "correct": 10,
+            "errors": 0,
+            "coverage": 0.5263157894736842,
+            "precision": 1.0,
+            "precision_ci95_wilson": [
+              0.7224672001371107,
+              0.9999999999999999
+            ],
+            "wrong_routed_to_review": 2
+          }
+        }
+      },
+      "tilt": {
+        "receipts": 20,
+        "eligible": 19,
+        "full_accuracy": 0.7894736842105263,
+        "wrong_totals": 4,
+        "exact_scale_errors": {},
+        "ocr_seconds_mean": 0.6328752837143838,
+        "review_reasons": {
+          "payable_label_missing": 7,
+          "payable_amount_matches": 11,
+          "model_total_missing": 1,
+          "payable_amount_differs": 1
+        },
+        "policies": {
+          "model_has_total": {
+            "accepted": 18,
+            "correct": 15,
+            "errors": 3,
+            "coverage": 0.9473684210526315,
+            "precision": 0.8333333333333334,
+            "precision_ci95_wilson": [
+              0.6077796189608428,
+              0.9416342319413856
+            ],
+            "wrong_routed_to_review": 1
+          },
+          "amount_anywhere": {
+            "accepted": 17,
+            "correct": 15,
+            "errors": 2,
+            "coverage": 0.8947368421052632,
+            "precision": 0.8823529411764706,
+            "precision_ci95_wilson": [
+              0.6566364940511412,
+              0.9671202262362074
+            ],
+            "wrong_routed_to_review": 2
+          },
+          "labeled_total_agreement": {
+            "accepted": 7,
+            "correct": 5,
+            "errors": 2,
+            "coverage": 0.3684210526315789,
+            "precision": 0.7142857142857143,
+            "precision_ci95_wilson": [
+              0.35893445183261935,
+              0.9177810759959433
+            ],
+            "wrong_routed_to_review": 2
+          },
+          "deskewed_total_agreement": {
+            "accepted": 11,
+            "correct": 11,
+            "errors": 0,
+            "coverage": 0.5789473684210527,
+            "precision": 1.0,
+            "precision_ci95_wilson": [
+              0.7411670330319684,
+              1.0
+            ],
+            "wrong_routed_to_review": 4
+          }
+        }
+      }
+    }
+  },
+  "sroie": {
+    "dataset": "jsdnrs/ICDAR2019-SROIE",
+    "revision": "bffe40c26759f3376ec2b3ae9031dbba54cd587c",
+    "split": "test",
+    "source_size": 361,
+    "seed": 42,
+    "indices": [
+      3,
+      12,
+      13,
+      15,
+      16,
+      22,
+      23,
+      35,
+      36,
+      40,
+      44,
+      47,
+      49,
+      51,
+      52,
+      57,
+      63,
+      71,
+      79,
+      81,
+      83,
+      87,
+      98,
+      101,
+      107,
+      110,
+      111,
+      112,
+      114,
+      116,
+      119,
+      125,
+      135,
+      136,
+      138,
+      140,
+      142,
+      148,
+      150,
+      172,
+      174,
+      176,
+      181,
+      183,
+      185,
+      186,
+      189,
+      193,
+      194,
+      214,
+      216,
+      229,
+      232,
+      235,
+      236,
+      258,
+      273,
+      274,
+      279,
+      282,
+      287,
+      295,
+      301,
+      302,
+      308,
+      309,
+      311,
+      316,
+      321,
+      325,
+      327,
+      331,
+      332,
+      338,
+      343,
+      346,
+      349,
+      357,
+      359,
+      360
+    ],
+    "model": "Qwen/Qwen3-VL-4B-Instruct",
+    "model_revision": "ebb281ec70b05090aa6165b016eac8ec08e71b17",
+    "batch_size": 8,
+    "max_new_tokens": 768,
+    "variants": {
+      "clean": {
+        "receipts": 80,
+        "eligible": 75,
+        "full_accuracy": 0.37333333333333335,
+        "wrong_totals": 47,
+        "exact_scale_errors": {
+          "1000": 22,
+          "100": 19
+        },
+        "ocr_seconds_mean": 1.5398690472356975,
+        "review_reasons": {
+          "payable_label_missing": 44,
+          "payable_amount_ambiguous": 3,
+          "payable_amount_differs": 21,
+          "payable_amount_matches": 10,
+          "model_total_missing": 2
+        },
+        "policies": {
+          "model_has_total": {
+            "accepted": 74,
+            "correct": 28,
+            "errors": 46,
+            "coverage": 0.9866666666666667,
+            "precision": 0.3783783783783784,
+            "precision_ci95_wilson": [
+              0.2764753469106077,
+              0.4922854102398646
+            ],
+            "wrong_routed_to_review": 1
+          },
+          "amount_anywhere": {
+            "accepted": 29,
+            "correct": 28,
+            "errors": 1,
+            "coverage": 0.38666666666666666,
+            "precision": 0.9655172413793104,
+            "precision_ci95_wilson": [
+              0.8282447812067973,
+              0.9938867857072374
+            ],
+            "wrong_routed_to_review": 46
+          },
+          "labeled_total_agreement": {
+            "accepted": 9,
+            "correct": 9,
+            "errors": 0,
+            "coverage": 0.12,
+            "precision": 1.0,
+            "precision_ci95_wilson": [
+              0.7008549515804559,
+              1.0
+            ],
+            "wrong_routed_to_review": 47
+          },
+          "deskewed_total_agreement": {
+            "accepted": 10,
+            "correct": 10,
+            "errors": 0,
+            "coverage": 0.13333333333333333,
+            "precision": 1.0,
+            "precision_ci95_wilson": [
+              0.7224672001371107,
+              0.9999999999999999
+            ],
+            "wrong_routed_to_review": 47
+          }
+        }
+      }
+    }
+  }
+}

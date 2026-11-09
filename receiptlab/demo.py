@@ -10,7 +10,9 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps, UnidentifiedImageError
 
 from .__main__ import engines, make_engine
+from .ocr import OCR
 from .schema import checks, parse_prediction, to_csv
+from .verification import verify_total
 
 MAX_UPLOAD = 12 * 1024 * 1024
 MAX_PIXELS = 16_000_000
@@ -49,6 +51,7 @@ def example_png():
 
 def serve(args):
     engine = make_engine(args)
+    verifier = OCR() if args.verify_total else None
     lock = threading.Lock()
     html = Path(__file__).with_name("demo.html").read_bytes()
     example = example_png()
@@ -86,6 +89,7 @@ def serve(args):
                     self.json({"error": "请求应小于 12 MB。"}, 413)
                     return
                 body = self.rfile.read(length)
+                verification = None
                 if self.path == "/api/extract":
                     with Image.open(io.BytesIO(body)) as raw_image:
                         if raw_image.width * raw_image.height > MAX_PIXELS:
@@ -94,7 +98,9 @@ def serve(args):
                         image = ImageOps.exif_transpose(raw_image).convert("RGB")
                     with lock:
                         raw = engine.predict([image], max_new_tokens=args.max_new_tokens)[0]
-                    receipt = parse_prediction(raw)
+                        receipt = parse_prediction(raw)
+                        if receipt is not None and verifier is not None:
+                            verification = verify_total(receipt["total"], verifier.regions(image, deskew=True))
                 else:
                     receipt = parse_prediction(body)
                 if receipt is None:
@@ -102,7 +108,10 @@ def serve(args):
                 elif self.path == "/api/csv":
                     self.send(to_csv(receipt).encode("utf-8-sig"), "text/csv; charset=utf-8")
                 else:
-                    self.json({"receipt": receipt, "review": checks(receipt)})
+                    payload = {"receipt": receipt, "review": checks(receipt)}
+                    if verification is not None:
+                        payload["total_verification"] = verification
+                    self.json(payload)
             except (ValueError, OSError, UnidentifiedImageError, Image.DecompressionBombError):
                 self.json({"error": "无法读取输入。请使用 PNG、JPEG 或有效的票据 JSON。"}, 400)
             except Exception:
@@ -119,4 +128,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     engines(parser)
     parser.add_argument("--port", type=int, default=7860)
-    serve(parser.parse_args())
+    parser.add_argument("--verify-total", action="store_true", help="Independently verify the VLM total with OCR")
+    args = parser.parse_args()
+    if args.verify_total and args.engine != "qwen":
+        parser.error("--verify-total requires the Qwen engine")
+    serve(args)

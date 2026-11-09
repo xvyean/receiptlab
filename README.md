@@ -10,7 +10,13 @@ ReceiptLab 把一张小票照片转换成商品明细和应付总额。浏览器
 
 [评测报告](reports/benchmark.md) 包含 OCR 基线、图像扰动、各字段分数和错误分析。
 
-![ReceiptLab 演示页面（OCR 基线）](reports/demo.png)
+![ReceiptLab 总额核验与原图证据](reports/review-demo.png)
+
+## v0.2 总额证据核验
+
+开启 `--verify-total` 后，RapidOCR 会在原图中找带应付标签的金额。OCR 文字框有倾角时，先把坐标投影到同一阅读方向再拼行。只有唯一候选与视觉模型一致时，页面才标为总额交叉一致，并高亮原图上的对应位置。修改总额会清除核验状态。
+
+[核验评测报告](reports/review-benchmark.md) 对照了 CORD v2、80 张 SROIE 英文小票，以及模糊和旋转时的覆盖率、已接受正确率和误接受。
 
 ## 运行演示
 
@@ -26,7 +32,7 @@ GPU 实验使用单卡 CUDA 环境。先安装与驱动兼容的 PyTorch 和 tor
 ```bash
 python -m pip install torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cu128
 python -m pip install -r requirements-ml.txt
-python -m receiptlab.demo --model Qwen/Qwen3-VL-4B-Instruct --adapter runs/adapter
+python -m receiptlab.demo --model Qwen/Qwen3-VL-4B-Instruct --adapter runs/adapter --verify-total
 ```
 
 可[下载 v0.1.0 适配器 ZIP](https://raw.githubusercontent.com/xvyean/receiptlab/adapter-v0.1.0/receiptlab-qwen3-vl-4b-adapter.zip)，解压到 `runs/adapter`。省略 `--adapter` 可用原版模型。服务器上默认只监听回环地址，可以通过 SSH 本地转发访问。
@@ -57,6 +63,18 @@ python -m receiptlab evaluate --split test --batch-size 4 --adapter runs/adapter
 - 行级 F1 用多重集合匹配规范化后的「商品名、数量、单价、行小计」，因此重复商品也会计入。总额准确率只统计有总额标注的样本。无法解析的模型输出计作无预测。
 - 金额核验分别比较数量 × 单价和行小计、商品行合计和小票小计。税费、折扣和舍入可能造成合法差异，页面保留识别值供人工复核。
 - 延迟为热启动后的批处理耗时除以批内样本数，包含预处理和生成。CPU 和 GPU 的批大小不同，报告按各自的批大小解释。
+
+## 重跑总额核验
+
+使用同一份 v0.1 模型输出比较四种规则。CORD 复用已有预测，SROIE 从固定版本的官方测试划分以种子 42 抽取 80 张。
+
+~~~bash
+python -m receiptlab evaluate --split test --limit 20 --variants blur tilt --batch-size 4 --adapter runs/adapter --output runs/robust-tuned
+python -m receiptlab.review_eval cord --cached runs/test-tuned/predictions.jsonl runs/robust-tuned/predictions.jsonl --output runs/review-cord
+python -m receiptlab.review_eval sroie --adapter runs/adapter --limit 80 --seed 42 --batch-size 8 --output runs/review-sroie
+~~~
+
+支持 `--sroie-shard` 指向固定修订下载的 test Parquet。SROIE 的 `--cached` 可在已有预测记录上只重跑 OCR 与决策规则。报告口径只评估应付总额。
 
 ## 数据和许可
 
