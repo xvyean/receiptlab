@@ -29,7 +29,7 @@ python -m pip install -r requirements-ml.txt
 python -m receiptlab.demo --model Qwen/Qwen3-VL-4B-Instruct --adapter runs/adapter
 ```
 
-可从 [v0.1.0 Release](https://github.com/xvyean/receiptlab/releases/tag/v0.1.0) 下载适配器，解压到 `runs/adapter`。省略 `--adapter` 可用原版模型。服务器上默认只监听回环地址，可以通过 SSH 本地转发访问。
+可[下载 v0.1.0 适配器 ZIP](https://raw.githubusercontent.com/xvyean/receiptlab/adapter-v0.1.0/receiptlab-qwen3-vl-4b-adapter.zip)，解压到 `runs/adapter`。省略 `--adapter` 可用原版模型。服务器上默认只监听回环地址，可以通过 SSH 本地转发访问。
 
 如果 Linux 的 OpenCV 缺少图形库，把无图形版本放到独立目录，再通过 PYTHONPATH 加载。Triton 首次编译需要 GCC 和与 Python 版本匹配的开发头文件。
 
