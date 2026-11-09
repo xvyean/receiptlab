@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+data/
+weights/
+runs/
+*.safetensors
+*.parquet
+*.jsonl
+.DS_Store
+.ocr-headless/

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ReceiptLab 票据识别</title>
+<style>
+:root{color-scheme:light;--ink:#172e25;--muted:#547064;--line:#d7e5dd;--paper:#f2f7f3;--accent:#176345}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 system-ui,"Microsoft YaHei",sans-serif}
+main{max-width:1180px;margin:auto;padding:38px clamp(18px,4vw,56px)}
+header{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:24px}
+h1{font-size:clamp(36px,6vw,58px);line-height:1.1;letter-spacing:-.04em;margin:0}
+h2{font-size:17px;margin:0 0 12px}
+p{margin:6px 0;color:var(--muted)}
+.toolbar,.workspace{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.workspace{display:grid;align-items:start;grid-template-columns:minmax(250px,.75fr) minmax(410px,1.25fr);gap:16px;margin-top:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
+.preview{min-height:320px;display:grid;place-items:center;background:#f3f7f5;border-radius:10px}
+img{max-width:100%;max-height:590px;object-fit:contain;border-radius:4px}
+button,.upload{border:1px solid var(--accent);border-radius:8px;background:var(--accent);color:#fff;padding:9px 13px;font:inherit;cursor:pointer}
+.secondary{background:white;color:var(--accent)}
+button:disabled{cursor:default;opacity:.47}
+input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
+.upload:focus-within{outline:2px solid var(--ink);outline-offset:3px}
+#status{min-height:24px}
+#engine{color:var(--accent);font-weight:600;border:1px solid var(--line);background:#fff;border-radius:100px;padding:5px 12px}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+th{white-space:nowrap;color:var(--muted);font-size:12px}
+td:first-child{width:40%} td:last-child button{white-space:nowrap;padding:5px 8px}
+td input,.totals input{width:100%;border:1px solid var(--line);border-radius:5px;padding:5px;font:inherit}
+.totals{display:flex;gap:10px;margin-bottom:14px}
+.totals label{width:140px;color:var(--muted)}
+#issues{padding-left:20px;color:#895018;margin:10px 0}
+[hidden]{display:none!important}
+@media(max-width:760px){.workspace{grid-template-columns:1fr}header{align-items:start}main{padding-top:24px}}
+</style>
+<main>
+  <header>
+    <div><h1>ReceiptLab</h1><p>识别小票照片中的商品明细，核对金额，再导出表格。</p></div>
+    <span id="engine">本地识别</span>
+  </header>
+  <section class="toolbar" aria-label="图片操作">
+    <label class="upload">选择照片<input id="file" type="file" accept="image/png,image/jpeg,image/webp"></label>
+    <button id="sample" class="secondary">载入样例</button>
+    <button id="run" disabled>识别票据</button>
+    <p id="status" role="status" aria-live="polite">等待图片</p>
+  </section>
+  <div class="workspace">
+    <section class="card">
+      <h2>原始图片</h2>
+      <div class="preview"><p id="empty">在此预览票据</p><img id="preview" alt="待核对的票据原图" hidden></div>
+    </section>
+    <section class="card">
+      <h2>识别结果</h2>
+      <p id="hint">识别完成后，可以编辑结果并重新核验。</p>
+      <div id="result" hidden>
+        <table aria-label="商品明细">
+          <thead><tr><th>商品</th><th>数量</th><th>单价</th><th>行小计</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="totals">
+          <label>小计<input id="subtotal" inputmode="decimal"></label>
+          <label>应付总额<input id="total" inputmode="decimal"></label>
+        </div>
+        <div class="toolbar">
+          <button id="add" class="secondary">添加一行</button>
+          <button id="review" class="secondary">核验金额</button>
+          <button id="export">导出 CSV</button>
+        </div>
+        <ul id="issues" aria-live="polite"></ul>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+const el = id => document.getElementById(id);
+const keys = ["name", "quantity", "unit_price", "line_total"];
+const fields = ["商品名", "数量", "单价", "行小计"];
+let selected, previewUrl, busy = false;
+
+async function request(path, options) {
+  const response = await fetch(path, options);
+  if (!response.ok) {
+    const detail = await response.json().catch(() => ({}));
+    throw new Error(detail.error || "请求失败");
+  }
+  return response;
+}
+function loadImage(blob) {
+  if (previewUrl) URL.revokeObjectURL(previewUrl);
+  selected = blob;
+  previewUrl = URL.createObjectURL(blob);
+  el("preview").src = previewUrl;
+  el("preview").hidden = false;
+  el("empty").hidden = true;
+  el("hint").hidden = false;
+  el("result").hidden = true;
+  el("run").disabled = false;
+  el("status").textContent = "已载入图片";
+}
+function addRow(item = {}) {
+  const row = el("rows").insertRow();
+  keys.forEach((key, index) => {
+    const input = document.createElement("input");
+    input.value = item[key] ?? "";
+    input.setAttribute("aria-label", fields[index]);
+    if (index) input.inputMode = "decimal";
+    row.insertCell().append(input);
+  });
+  const remove = document.createElement("button");
+  remove.textContent = "移除";
+  remove.className = "secondary";
+  remove.onclick = () => row.remove();
+  row.insertCell().append(remove);
+}
+function receipt() {
+  return {
+    items: [...el("rows").rows].map(row =>
+      Object.fromEntries([...row.querySelectorAll("input")].map((input, index) =>
+        [keys[index], index ? input.value.trim() || null : input.value.trim()]))),
+    subtotal: el("subtotal").value.trim() || null,
+    total: el("total").value.trim() || null
+  };
+}
+function showIssues(issues) {
+  el("issues").replaceChildren();
+  for (const issue of issues) {
+    const li = document.createElement("li");
+    const location = issue.row === null ? "明细合计" : "第 " + issue.row + " 行";
+    li.textContent = location + "待复核：计算值 " + issue.expected + "，识别值 " + issue.observed;
+    el("issues").append(li);
+  }
+  if (!issues.length) el("status").textContent = "已有字段未发现算术差异";
+}
+async function perform(task) {
+  if (busy) return;
+  busy = true;
+  ["run", "review", "export", "sample", "file"].forEach(id => el(id).disabled = true);
+  try { await task(); } catch (error) { el("status").textContent = error.message; }
+  finally {
+    busy = false;
+    ["review", "export", "sample", "file"].forEach(id => el(id).disabled = false);
+    el("run").disabled = !selected;
+  }
+}
+el("file").onchange = event => {
+  const file = event.target.files[0];
+  if (file) loadImage(file);
+};
+el("sample").onclick = () => perform(async () => loadImage(await (await request("/example.png")).blob()));
+el("run").onclick = () => perform(async () => {
+  el("status").textContent = "正在识别";
+  const data = await (await request("/api/extract", {method:"POST", body:selected})).json();
+  el("rows").replaceChildren();
+  data.receipt.items.forEach(addRow);
+  el("subtotal").value = data.receipt.subtotal ?? "";
+  el("total").value = data.receipt.total ?? "";
+  el("hint").hidden = true;
+  el("result").hidden = false;
+  el("status").textContent = "识别完成";
+  showIssues(data.review);
+});
+el("add").onclick = () => addRow();
+el("review").onclick = () => perform(async () => {
+  const data = await (await request("/api/review", {method:"POST", body:JSON.stringify(receipt())})).json();
+  el("status").textContent = "请复核下列差异";
+  showIssues(data.review);
+});
+el("export").onclick = () => perform(async () => {
+  const csv = await (await request("/api/csv", {method:"POST", body:JSON.stringify(receipt())})).blob();
+  const url = URL.createObjectURL(csv);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "receipt.csv";
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  el("status").textContent = "CSV 已导出";
+});
+request("/health").then(r => r.json()).then(data => {
+  el("engine").textContent = data.engine === "ocr" ? "OCR 基线" :
+    data.adapter ? "Qwen3-VL 微调" : "Qwen3-VL 原版";
+}).catch(() => {});
+</script>
+</html>

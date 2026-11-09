@@ -1,0 +1,454 @@
+{
+  "training": {
+    "model": "Qwen/Qwen3-VL-4B-Instruct",
+    "revision": "ebb281ec70b05090aa6165b016eac8ec08e71b17",
+    "quantization": "NF4",
+    "steps": 60,
+    "gradient_accumulation": 4,
+    "training_receipts": 240,
+    "seed": 42,
+    "max_pixels": 524288,
+    "learning_rate": 0.0002,
+    "trainable_parameters": 5898240,
+    "loss_by_step": [
+      0.6909365709871054,
+      0.5272832065820694,
+      0.3351852207451884,
+      0.39493589103221893,
+      0.29675886780023575,
+      0.11156329698860645,
+      0.16402240796014667,
+      0.15603596298024058,
+      0.09655063319951296,
+      0.05284667294472456,
+      0.039446579525247216,
+      0.08353031612932682,
+      0.09305105684325099,
+      0.08218425791710615,
+      0.0707334028556943,
+      0.06199702899903059,
+      0.1112393094226718,
+      0.05613790138158947,
+      0.02353458886500448,
+      0.038591278716921806,
+      0.04541291599161923,
+      0.029453095048666,
+      0.07491089776158333,
+      0.06756540108472109,
+      0.10927677736617625,
+      0.022896790993399918,
+      0.025078061036765575,
+      0.03853390854783356,
+      0.06093182443873957,
+      0.06538573675788939,
+      0.05515718599781394,
+      0.01916563045233488,
+      0.07993348396848887,
+      0.08541862393030897,
+      0.02911697165109217,
+      0.043661504751071334,
+      0.039024713914841413,
+      0.04183611209737137,
+      0.04623143363278359,
+      0.04939013300463557,
+      0.03691470832563937,
+      0.09445759560912848,
+      0.055583672132343054,
+      0.10965002421289682,
+      0.13047263957560062,
+      0.0436325001064688,
+      0.07413920410908759,
+      0.05339860403910279,
+      0.02593313588295132,
+      0.11239944631233811,
+      0.02051811316050589,
+      0.019670705776661634,
+      0.03611479350365698,
+      0.09383629262447357,
+      0.01179118047002703,
+      0.1529888533987105,
+      0.018946975527796894,
+      0.03817588370293379,
+      0.11716534942388535,
+      0.09913325496017933
+    ],
+    "training_seconds": 158.58878583088517,
+    "peak_allocated_mib": 8375.8359375,
+    "gpu": "NVIDIA GeForce RTX 4090 D"
+  },
+  "runs": {
+    "validation20": {
+      "dataset": "naver-clova-ix/cord-v2",
+      "dataset_revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "split": "validation",
+      "engine": "qwen",
+      "model": "Qwen/Qwen3-VL-4B-Instruct",
+      "adapter": false,
+      "batch_size": 4,
+      "max_pixels": 524288,
+      "max_new_tokens": 768,
+      "device": "NVIDIA GeForce RTX 4090 D",
+      "peak_allocated_mib": 4038.533203125,
+      "variants": {
+        "clean": {
+          "receipts": 20,
+          "schema_valid_rate": 0.85,
+          "total_exact_accuracy": 0.55,
+          "total_eligible": 20,
+          "total_correct": 11,
+          "rows_match": 1,
+          "rows_expected": 35,
+          "rows_predicted": 29,
+          "line_item_exact_f1": 0.03125,
+          "field_f1": {
+            "name": 0.78125,
+            "quantity": 0.8135593220338984,
+            "unit_price": 0.05555555555555555,
+            "line_total": 0.4375
+          },
+          "mean_seconds_per_receipt": 2.664249494858086,
+          "p95_seconds_per_receipt": 3.4443431217223406
+        }
+      }
+    },
+    "test-ocr": {
+      "dataset": "naver-clova-ix/cord-v2",
+      "dataset_revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "split": "test",
+      "engine": "ocr",
+      "model": null,
+      "adapter": false,
+      "batch_size": 1,
+      "max_pixels": null,
+      "max_new_tokens": null,
+      "device": "CPU",
+      "peak_allocated_mib": null,
+      "variants": {
+        "clean": {
+          "receipts": 100,
+          "schema_valid_rate": 1.0,
+          "total_exact_accuracy": 0.6,
+          "total_eligible": 95,
+          "total_correct": 57,
+          "rows_match": 19,
+          "rows_expected": 251,
+          "rows_predicted": 277,
+          "line_item_exact_f1": 0.07196969696969698,
+          "field_f1": {
+            "name": 0.2727272727272727,
+            "quantity": 0.07692307692307693,
+            "unit_price": 0.06557377049180328,
+            "line_total": 0.23892100192678228
+          },
+          "mean_seconds_per_receipt": 0.6112929009273649,
+          "p95_seconds_per_receipt": 1.1038926895707846
+        }
+      }
+    },
+    "test-base": {
+      "dataset": "naver-clova-ix/cord-v2",
+      "dataset_revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "split": "test",
+      "engine": "qwen",
+      "model": "Qwen/Qwen3-VL-4B-Instruct",
+      "adapter": false,
+      "batch_size": 4,
+      "max_pixels": 524288,
+      "max_new_tokens": 768,
+      "device": "NVIDIA GeForce RTX 4090 D",
+      "peak_allocated_mib": 4160.603515625,
+      "variants": {
+        "clean": {
+          "receipts": 100,
+          "schema_valid_rate": 0.9,
+          "total_exact_accuracy": 0.7578947368421053,
+          "total_eligible": 95,
+          "total_correct": 72,
+          "rows_match": 12,
+          "rows_expected": 251,
+          "rows_predicted": 252,
+          "line_item_exact_f1": 0.04771371769383698,
+          "field_f1": {
+            "name": 0.7077534791252486,
+            "quantity": 0.6543778801843319,
+            "unit_price": 0.12337662337662338,
+            "line_total": 0.5564516129032258
+          },
+          "mean_seconds_per_receipt": 4.188433938007802,
+          "p95_seconds_per_receipt": 7.868683516047895
+        }
+      }
+    },
+    "test-tuned": {
+      "dataset": "naver-clova-ix/cord-v2",
+      "dataset_revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "split": "test",
+      "engine": "qwen",
+      "model": "Qwen/Qwen3-VL-4B-Instruct",
+      "adapter": true,
+      "batch_size": 4,
+      "max_pixels": 524288,
+      "max_new_tokens": 768,
+      "device": "NVIDIA GeForce RTX 4090 D",
+      "peak_allocated_mib": 4060.9326171875,
+      "variants": {
+        "clean": {
+          "receipts": 100,
+          "schema_valid_rate": 0.91,
+          "total_exact_accuracy": 0.8421052631578947,
+          "total_eligible": 95,
+          "total_correct": 80,
+          "rows_match": 134,
+          "rows_expected": 251,
+          "rows_predicted": 238,
+          "line_item_exact_f1": 0.5480572597137015,
+          "field_f1": {
+            "name": 0.7566462167689162,
+            "quantity": 0.7409326424870466,
+            "unit_price": 0.36363636363636365,
+            "line_total": 0.7012448132780082
+          },
+          "mean_seconds_per_receipt": 3.1848208812624215,
+          "p95_seconds_per_receipt": 5.62423906289041
+        }
+      }
+    },
+    "robust-ocr": {
+      "dataset": "naver-clova-ix/cord-v2",
+      "dataset_revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "split": "test",
+      "engine": "ocr",
+      "model": null,
+      "adapter": false,
+      "batch_size": 1,
+      "max_pixels": null,
+      "max_new_tokens": null,
+      "device": "CPU",
+      "peak_allocated_mib": null,
+      "variants": {
+        "blur": {
+          "receipts": 20,
+          "schema_valid_rate": 1.0,
+          "total_exact_accuracy": 0.6842105263157895,
+          "total_eligible": 19,
+          "total_correct": 13,
+          "rows_match": 4,
+          "rows_expected": 41,
+          "rows_predicted": 35,
+          "line_item_exact_f1": 0.10526315789473684,
+          "field_f1": {
+            "name": 0.3157894736842105,
+            "quantity": 0.05714285714285714,
+            "unit_price": 0.0,
+            "line_total": 0.2894736842105263
+          },
+          "mean_seconds_per_receipt": 0.4851545159704983,
+          "p95_seconds_per_receipt": 0.9776454847306013
+        },
+        "tilt": {
+          "receipts": 20,
+          "schema_valid_rate": 1.0,
+          "total_exact_accuracy": 0.21052631578947367,
+          "total_eligible": 19,
+          "total_correct": 4,
+          "rows_match": 0,
+          "rows_expected": 41,
+          "rows_predicted": 46,
+          "line_item_exact_f1": 0.0,
+          "field_f1": {
+            "name": 0.13793103448275862,
+            "quantity": 0.046511627906976744,
+            "unit_price": 0.0,
+            "line_total": 0.023255813953488372
+          },
+          "mean_seconds_per_receipt": 0.6289664237760008,
+          "p95_seconds_per_receipt": 1.195200141519308
+        }
+      }
+    },
+    "robust-base": {
+      "dataset": "naver-clova-ix/cord-v2",
+      "dataset_revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "split": "test",
+      "engine": "qwen",
+      "model": "Qwen/Qwen3-VL-4B-Instruct",
+      "adapter": false,
+      "batch_size": 4,
+      "max_pixels": 524288,
+      "max_new_tokens": 768,
+      "device": "NVIDIA GeForce RTX 4090 D",
+      "peak_allocated_mib": 4030.5361328125,
+      "variants": {
+        "blur": {
+          "receipts": 20,
+          "schema_valid_rate": 0.95,
+          "total_exact_accuracy": 0.7368421052631579,
+          "total_eligible": 19,
+          "total_correct": 14,
+          "rows_match": 0,
+          "rows_expected": 41,
+          "rows_predicted": 47,
+          "line_item_exact_f1": 0.0,
+          "field_f1": {
+            "name": 0.5681818181818182,
+            "quantity": 0.475,
+            "unit_price": 0.038461538461538464,
+            "line_total": 0.45454545454545453
+          },
+          "mean_seconds_per_receipt": 3.2315810030326246,
+          "p95_seconds_per_receipt": 4.4142420082353055
+        },
+        "tilt": {
+          "receipts": 20,
+          "schema_valid_rate": 0.9,
+          "total_exact_accuracy": 0.631578947368421,
+          "total_eligible": 19,
+          "total_correct": 12,
+          "rows_match": 0,
+          "rows_expected": 41,
+          "rows_predicted": 45,
+          "line_item_exact_f1": 0.0,
+          "field_f1": {
+            "name": 0.627906976744186,
+            "quantity": 0.5384615384615384,
+            "unit_price": 0.08,
+            "line_total": 0.4186046511627907
+          },
+          "mean_seconds_per_receipt": 3.133373660687357,
+          "p95_seconds_per_receipt": 4.696611030958593
+        }
+      }
+    },
+    "robust-tuned": {
+      "dataset": "naver-clova-ix/cord-v2",
+      "dataset_revision": "7f0115a4b758a71d6473b8d085751692da2fef98",
+      "split": "test",
+      "engine": "qwen",
+      "model": "Qwen/Qwen3-VL-4B-Instruct",
+      "adapter": true,
+      "batch_size": 4,
+      "max_pixels": 524288,
+      "max_new_tokens": 768,
+      "device": "NVIDIA GeForce RTX 4090 D",
+      "peak_allocated_mib": 4053.3642578125,
+      "variants": {
+        "blur": {
+          "receipts": 20,
+          "schema_valid_rate": 0.95,
+          "total_exact_accuracy": 0.8947368421052632,
+          "total_eligible": 19,
+          "total_correct": 17,
+          "rows_match": 16,
+          "rows_expected": 41,
+          "rows_predicted": 45,
+          "line_item_exact_f1": 0.37209302325581395,
+          "field_f1": {
+            "name": 0.5581395348837209,
+            "quantity": 0.5070422535211268,
+            "unit_price": 0.09523809523809523,
+            "line_total": 0.5116279069767442
+          },
+          "mean_seconds_per_receipt": 2.4428854090161622,
+          "p95_seconds_per_receipt": 3.479106872342527
+        },
+        "tilt": {
+          "receipts": 20,
+          "schema_valid_rate": 0.95,
+          "total_exact_accuracy": 0.7894736842105263,
+          "total_eligible": 19,
+          "total_correct": 15,
+          "rows_match": 16,
+          "rows_expected": 41,
+          "rows_predicted": 45,
+          "line_item_exact_f1": 0.37209302325581395,
+          "field_f1": {
+            "name": 0.6976744186046512,
+            "quantity": 0.6575342465753424,
+            "unit_price": 0.25,
+            "line_total": 0.5813953488372093
+          },
+          "mean_seconds_per_receipt": 2.4252727423794567,
+          "p95_seconds_per_receipt": 3.298287359531969
+        }
+      }
+    }
+  },
+  "paired_clean_first_20": {
+    "test-ocr": {
+      "receipts": 20,
+      "schema_valid_rate": 1.0,
+      "total_exact_accuracy": 0.5789473684210527,
+      "total_eligible": 19,
+      "total_correct": 11,
+      "rows_match": 4,
+      "rows_expected": 41,
+      "rows_predicted": 57,
+      "line_item_exact_f1": 0.08163265306122448,
+      "field_f1": {
+        "name": 0.24489795918367346,
+        "quantity": 0.05128205128205128,
+        "unit_price": 0.0,
+        "line_total": 0.24489795918367346
+      },
+      "mean_seconds_per_receipt": 0.629464397020638,
+      "p95_seconds_per_receipt": 1.1038926895707846
+    },
+    "test-base": {
+      "receipts": 20,
+      "schema_valid_rate": 0.9,
+      "total_exact_accuracy": 0.6842105263157895,
+      "total_eligible": 19,
+      "total_correct": 13,
+      "rows_match": 1,
+      "rows_expected": 41,
+      "rows_predicted": 46,
+      "line_item_exact_f1": 0.022988505747126436,
+      "field_f1": {
+        "name": 0.6666666666666666,
+        "quantity": 0.5822784810126582,
+        "unit_price": 0.0784313725490196,
+        "line_total": 0.45977011494252873
+      },
+      "mean_seconds_per_receipt": 3.2690417064353823,
+      "p95_seconds_per_receipt": 4.404112623538822
+    },
+    "test-tuned": {
+      "receipts": 20,
+      "schema_valid_rate": 0.95,
+      "total_exact_accuracy": 0.8947368421052632,
+      "total_eligible": 19,
+      "total_correct": 17,
+      "rows_match": 20,
+      "rows_expected": 41,
+      "rows_predicted": 45,
+      "line_item_exact_f1": 0.46511627906976744,
+      "field_f1": {
+        "name": 0.627906976744186,
+        "quantity": 0.5833333333333334,
+        "unit_price": 0.4,
+        "line_total": 0.5581395348837209
+      },
+      "mean_seconds_per_receipt": 2.4017850518226624,
+      "p95_seconds_per_receipt": 3.126177084632218
+    }
+  },
+  "error_counts_on_clean_test": {
+    "test-ocr": {
+      "incorrect_total": 38,
+      "too_few_lines": 25,
+      "too_many_lines": 29
+    },
+    "test-base": {
+      "incorrect_total": 23,
+      "too_few_lines": 4,
+      "too_many_lines": 16,
+      "invalid_json_or_schema": 10
+    },
+    "test-tuned": {
+      "too_few_lines": 6,
+      "too_many_lines": 8,
+      "incorrect_total": 15,
+      "invalid_json_or_schema": 9
+    }
+  }
+}
